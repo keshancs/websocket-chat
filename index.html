@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <title>WebSocket Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #f2f2f2;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .wrapper {
+            display: flex;
+            height: 100%;
+        }
+        .wrapper .content {
+            flex-grow: 1;
+            height: inherit;
+        }
+        .wrapper .chat {
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: inherit;
+            width: 320px;
+        }
+        .wrapper .chat .messages {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .wrapper .chat .controls {
+            flex-shrink: 0;
+            padding: 20px;
+        }
+        .wrapper .chat .controls .input {
+            border: 1px solid #d3d3d3;
+            padding: 10px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <main class="content"></main>
+        <aside class="chat">
+            <div class="messages"></div>
+            <div class="controls">
+                <input type="text" placeholder="Message" class="input" />
+            </div>
+        </aside>
+    </div>
+    <script>
+        const messages = document.querySelector('.messages');
+
+        const socket = new WebSocket("ws://127.0.0.1:8080");
+
+        socket.addEventListener("message", (event) => {
+            const reader = new FileReader();
+            reader.readAsText(event.data);
+            
+            reader.addEventListener("load", () => {
+                const message = document.createElement('div');
+                message.innerHTML = reader.result;
+                
+                messages.appendChild(message);
+            });
+        });
+
+        document.querySelector('.input').addEventListener('keyup', event => {
+            if (event.keyCode === 13) {
+                socket.send(event.target.value);
+
+                event.target.value = '';
+                
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
